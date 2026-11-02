@@ -6,10 +6,13 @@
 {%- endcomment -%}
 <meta name="theme-color" content="#2568ba">
 
-<link rel="icon" href="{{ '/favicon.ico' | relative_url }}" sizes="32x32">
-<link rel="icon" href="{{ '/assets/favicon.svg' | relative_url }}" type="image/svg+xml">
-{# iOS 不支持 SVG 作为 apple-touch-icon，必须用 PNG #}
-<link rel="apple-touch-icon" href="{{ '/assets/apple-touch-icon.png' | relative_url }}">
+{%- comment -%}
+  ?v=2 用于突破浏览器对 favicon 的强缓存，图标文件替换后把版本号 +1 即可。
+{%- endcomment -%}
+<link rel="icon" href="{{ '/favicon.ico' | relative_url }}?v=2" sizes="32x32">
+<link rel="icon" href="{{ '/assets/favicon.svg' | relative_url }}?v=2" type="image/svg+xml">
+<!-- iOS 不支持 SVG 作为 apple-touch-icon，必须用 PNG -->
+<link rel="apple-touch-icon" href="{{ '/assets/apple-touch-icon.png' | relative_url }}?v=2">
 
 {% if page.collection == "posts" or page.layout == "post" %}
 <meta property="og:type" content="article">
