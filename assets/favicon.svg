@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Coding Hunter">
+  <rect width="32" height="32" rx="7" fill="#2568ba"/>
+  <!--
+    circle 的描边从 3 点钟位置开始顺时针绘制，dasharray 让实线走 ~270°、
+    缺口 90° 落在 12→3 点之间（缺口中心在右上 45°）。SVG 中 y 轴向下，
+    rotate 正角度为顺时针，因此 +45° 才能把缺口转到正右方（3 点钟）。
+    用 -45° 会转到正上方，字形就变成开口朝上的 ∪。
+  -->
+  <circle cx="16" cy="16" r="8" fill="none" stroke="#ffffff" stroke-width="4"
+          stroke-linecap="round" stroke-dasharray="37.7 50.3"
+          transform="rotate(45 16 16)"/>
+</svg>
