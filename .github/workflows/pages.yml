@@ -34,6 +34,8 @@ jobs:
         run: bundle exec jekyll build
         env:
           JEKYLL_ENV: production
+          # CI 默认 UTC，会把 feed/sitemap/JSON-LD 里的时间写成 +00:00；固定时区保证与本地构建一致
+          TZ: Asia/Shanghai
 
       # ---- 产物出口 A：gh-pages 分支 ----
       - name: Publish to gh-pages
