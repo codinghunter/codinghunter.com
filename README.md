@@ -15,54 +15,33 @@ bundle exec jekyll build      # 产物输出到 _site/
 
 ## 部署
 
-站点使用了 `jekyll-archives`，它**不在 GitHub Pages 老式（legacy）构建的白名单里**，
-且 Pages 内置的仍是 Jekyll 3.9.x。因此必须用 GitHub Actions 构建后再发布到 Pages：
+构建由 GitHub Actions（`.github/workflows/pages.yml`）完成，产物推送到 **`gh-pages`** 分支根目录，
+Pages 托管该分支。之所以不在 Pages 里直接选分支构建：站点用了 `jekyll-archives`，
+**不在 Pages 老式（legacy）构建的插件白名单里**，且 Pages 内置的仍是 Jekyll 3.9.x。
 
-1. 仓库 Settings → Pages → Source 选择 **GitHub Actions**
-2. 添加工作流（示例）：
+工作流：
 
-```yaml
-name: Deploy Jekyll site
+1. 监听 `master` 分支 push（也可手动 `workflow_dispatch`）
+2. `ruby/setup-ruby` 按 `.ruby-version` 装 Ruby，`bundler-cache` 缓存 gem
+3. `bundle exec jekyll build`（`JEKYLL_ENV=production`）
+4. `peaceiris/actions-gh-pages` 把 `_site/` 推到 `gh-pages`，`:force_orphan` 保持单提交，
+   并写入 `.nojekyll` 防止 Pages 对产物再跑一遍 Jekyll
 
-on:
-  push:
-    branches: [master]
+仓库侧的对应设置（一次性，不随代码走）：
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
+- Settings → Pages → Source 选 **Deploy from a branch** → `gh-pages` / `/ (root)`
+- 自定义域名：仓库根目录放 `CNAME`（内容 `codinghunter.com`），Jekyll 会原样复制进 `_site`；
+  DNS 侧按 Pages 要求配 A/AAAA 或 CNAME 记录
+- `gh-pages` 分支不要设分支保护/PR 要求，否则 `GITHUB_TOKEN` 推不上去
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ruby/setup-ruby@v1
-        with:
-          bundler-cache: true
-      - run: bundle exec jekyll build
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: _site
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4
-```
-
-3. 自定义域名：仓库根目录放 `CNAME` 文件（内容为 `codinghunter.com`），
-   并在域名 DNS 侧按 Pages 要求配置 A/AAAA 或 CNAME 记录。
+> 另一种官方推荐做法是不落分支（`actions/upload-pages-artifact` + `actions/deploy-pages`，
+> Settings → Pages → Source 选 **GitHub Actions**）。想保留可回溯的产物快照就用当前的 `gh-pages` 方式。
 
 ## 目录说明
 
 | 路径 | 说明 |
 | --- | --- |
+| `.github/workflows/pages.yml` | 构建并推送产物到 `gh-pages` 分支 |
 | `_config.yml` | 站点配置（`url` 必填，sitemap/feed/绝对链接依赖它） |
 | `_data/i18n.yml` | 中文文案与日期格式覆盖 |
 | `_data/navigation.yml` | 顶部导航 |
