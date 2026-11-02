@@ -1,7 +1,9 @@
-name: Build and deploy to gh-pages
+name: Build site
 
-# 构建产物推送到 gh-pages 分支，由 GitHub Pages 托管该分支根目录。
-# 这样构建始终在 Actions 里完成（Pages 的老式构建跑不了 jekyll-archives / Jekyll 4）。
+# 只负责「构建并发布产物」，站点怎么托管由使用者决定：
+# 1) 跑 gh-pages 分支（GitHub Pages 或服务器 git fetch 拉取）
+# 2) 打 tar.gz 传到 Release，服务器 curl 下载解压即可
+# 两者是同一份 _site，不需要在服务器上再构建。
 
 on:
   push:
@@ -9,10 +11,10 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write # peaceiris/actions-gh-pages 需要推送到 gh-pages
+  contents: write # 推 gh-pages / 写 Release 都需要
 
 concurrency:
-  group: gh-pages-deploy
+  group: build-deploy
   cancel-in-progress: false
 
 jobs:
@@ -33,14 +35,33 @@ jobs:
         env:
           JEKYLL_ENV: production
 
-      - name: Deploy to gh-pages
+      # ---- 产物出口 A：gh-pages 分支 ----
+      - name: Publish to gh-pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
           publish_dir: ./_site
-          # 产物目录内不放 Jekyll 源码特征，写 .nojekyll 让 Pages 别再跑一遍 Jekyll 3.9
+          # 产物目录里没有 Jekyll 源码，写 .nojekyll 让 Pages 别再跑一遍 Jekyll 3.9
           enable_jekyll: false
           # 每次部署生成单个提交，避免 gh-pages 历史无限膨胀（产物无可读 diff）
           force_orphan: true
-          # 自定义域名（CNAME 文件）请放在仓库根目录，Jekyll 会原样复制进 _site
+
+      # ---- 产物出口 B：Release 附件 site.tar.gz（公开可直下，不需要 token）----
+      - name: Package site
+        run: tar -czf site.tar.gz -C _site .
+
+      - name: Publish release asset
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: deploy
+          name: 站点产物（自动发布）
+          body: |
+            由 ${{ github.sha }} 构建的静态产物，解压到 Web 根目录即可，无需再构建。
+
+            ```bash
+            curl -fLO https://github.com/codinghunter/codinghunter.com/releases/download/deploy/site.tar.gz
+            ```
+          files: site.tar.gz
+          make_latest: false
+
