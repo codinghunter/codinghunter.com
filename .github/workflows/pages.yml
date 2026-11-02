@@ -1,0 +1,46 @@
+name: Build and deploy to gh-pages
+
+# 构建产物推送到 gh-pages 分支，由 GitHub Pages 托管该分支根目录。
+# 这样构建始终在 Actions 里完成（Pages 的老式构建跑不了 jekyll-archives / Jekyll 4）。
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: write # peaceiris/actions-gh-pages 需要推送到 gh-pages
+
+concurrency:
+  group: gh-pages-deploy
+  cancel-in-progress: false
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Ruby 版本取自仓库根目录的 .ruby-version
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - name: Build site
+        run: bundle exec jekyll build
+        env:
+          JEKYLL_ENV: production
+
+      - name: Deploy to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: ./_site
+          # 产物目录内不放 Jekyll 源码特征，写 .nojekyll 让 Pages 别再跑一遍 Jekyll 3.9
+          enable_jekyll: false
+          # 每次部署生成单个提交，避免 gh-pages 历史无限膨胀（产物无可读 diff）
+          force_orphan: true
+          # 自定义域名（CNAME 文件）请放在仓库根目录，Jekyll 会原样复制进 _site
