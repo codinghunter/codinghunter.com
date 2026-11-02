@@ -2,7 +2,7 @@ name: Build site
 
 # 只负责「构建并发布产物」，站点怎么托管由使用者决定：
 # 1) 跑 gh-pages 分支（GitHub Pages 或服务器 git fetch 拉取）
-# 2) 打 tar.gz 传到 Release，服务器 curl 下载解压即可
+# 2) 打 tar.gz 传到 Release（标签为日期，同一天多次构建用 .1 .2 递增），服务器 curl 下载解压即可
 # 两者是同一份 _site，不需要在服务器上再构建。
 
 on:
@@ -53,17 +53,31 @@ jobs:
       - name: Package site
         run: tar -czf site.tar.gz -C _site .
 
+      # 标签用日期，同一天多次构建用 .1 .2 递增（如 2026-11-02、2026-11-02.1）
+      - name: Compute release tag
+        id: tag
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          day=$(TZ=Asia/Shanghai date +%Y-%m-%d)
+          seq=0
+          while :; do
+            tag="$day"
+            if [ "$seq" -gt 0 ]; then tag="$day.$seq"; fi
+            if gh release view "$tag" >/dev/null 2>&1; then
+              seq=$((seq + 1))
+            else
+              break
+            fi
+          done
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
       - name: Publish release asset
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: deploy
-          name: 站点产物（自动发布）
-          body: |
-            由 ${{ github.sha }} 构建的静态产物，解压到 Web 根目录即可，无需再构建。
-
-            ```bash
-            curl -fLO https://github.com/codinghunter/codinghunter.com/releases/download/deploy/site.tar.gz
-            ```
+          tag_name: ${{ steps.tag.outputs.tag }}
+          name: ${{ steps.tag.outputs.tag }}
+          body: 由 ${{ github.sha }} 构建的静态产物，解压到 Web 根目录即可，无需再构建。
           files: site.tar.gz
-          make_latest: false
+          make_latest: true
 
