@@ -1,0 +1,63 @@
+{%- comment -%}
+  SEO / 结构化数据补充。
+  whiteglass 主题的 head.html 已输出 title / description / canonical / OG / Twitter 基础标签，
+  因此这里不引入 jekyll-seo-tag（会与主题输出重复），只补齐主题缺少的部分：
+  og:type、og:locale、文章发布时间、JSON-LD、favicon、theme-color。
+{%- endcomment -%}
+<meta name="theme-color" content="#2568ba">
+
+<link rel="icon" href="{{ '/favicon.ico' | relative_url }}" sizes="32x32">
+<link rel="icon" href="{{ '/assets/favicon.svg' | relative_url }}" type="image/svg+xml">
+<link rel="apple-touch-icon" href="{{ '/assets/favicon.svg' | relative_url }}">
+
+{% if page.collection == "posts" or page.layout == "post" %}
+<meta property="og:type" content="article">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="{{ page.date | date_to_xmlschema }}">
+{% if page.last_modified_at %}<meta property="article:modified_time" content="{{ page.last_modified_at | date_to_xmlschema }}">{% endif %}
+{% if page.categories %}{% for category in page.categories %}<meta property="article:section" content="{{ category }}">{% endfor %}{% endif %}
+{% if page.tags %}{% for tag in page.tags %}<meta property="article:tag" content="{{ tag }}">{% endfor %}{% endif %}
+{% else %}
+<meta property="og:type" content="website">
+<meta property="og:locale" content="zh_CN">
+{% endif %}
+
+<script type="application/ld+json">
+{% if page.collection == "posts" or page.layout == "post" %}
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": {{ page.url | absolute_url | jsonify }}
+  },
+  "headline": {{ page.title | jsonify }},
+  "datePublished": {{ page.date | date_to_xmlschema | jsonify }},
+  "dateModified": {{ page.last_modified_at | default: page.date | date_to_xmlschema | jsonify }},
+  "author": {
+    "@type": "Person",
+    "name": {{ site.author | jsonify }},
+    "url": {{ '/' | absolute_url | jsonify }}
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": {{ site.title | jsonify }}
+  },
+  "inLanguage": {{ site.lang | default: "zh-CN" | jsonify }}
+}
+{% else %}
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": {{ site.title | jsonify }},
+  "alternateName": {{ site.tagline | default: site.title | jsonify }},
+  "url": {{ '/' | absolute_url | jsonify }},
+  "description": {{ site.description | strip_newlines | strip | jsonify }},
+  "author": {
+    "@type": "Person",
+    "name": {{ site.author | jsonify }}
+  },
+  "inLanguage": {{ site.lang | default: "zh-CN" | jsonify }}
+}
+{% endif %}
+</script>
