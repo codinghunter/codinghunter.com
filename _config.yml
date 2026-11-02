@@ -11,6 +11,9 @@ github_username: codinghunter
 
 # Build settings
 markdown: kramdown
+# jekyll-sass-converter 默认 sourcemap: always，生产环境不需要 .css.map
+sass:
+  sourcemap: never
 theme: jekyll-whiteglass
 plugins:
   - jekyll-archives
