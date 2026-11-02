@@ -60,16 +60,38 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           day=$(TZ=Asia/Shanghai date +%Y-%m-%d)
-          seq=0
-          while :; do
-            tag="$day"
-            if [ "$seq" -gt 0 ]; then tag="$day.$seq"; fi
-            if gh release view "$tag" >/dev/null 2>&1; then
-              seq=$((seq + 1))
-            else
+
+          # 一次取回全部 tag（失败重试 3 次）。取不到就中止：
+          # 否则序号会归零、把当天已有的 tag 覆盖掉。
+          ok=0
+          for i in 1 2 3; do
+            if tags=$(gh release list --limit 200 --json tagName --jq '.[].tagName'); then
+              ok=1
               break
             fi
+            echo "gh release list 失败，5s 后重试（$i/3）"
+            sleep 5
           done
+          if [ "$ok" != "1" ]; then
+            echo "::error::获取已有 release 列表失败，为避免覆盖已有 tag 中止"
+            exit 1
+          fi
+
+          tag=$(printf '%s\n' "$tags" | DAY="$day" python3 -c '
+          import os, re, sys
+          day = os.environ["DAY"]
+          seen = set()  # 当天已占用的序号：日期本身记为 0，日期.N 记为 N
+          for t in sys.stdin.read().split():
+              if t == day:
+                  seen.add(0)
+                  continue
+              m = re.fullmatch(re.escape(day) + r"\.(\d+)", t)
+              if m:
+                  seen.add(int(m.group(1)))
+          n = max(seen) + 1 if seen else 0
+          print(day if n == 0 else f"{day}.{n}")
+          ')
+          echo "tag=$tag"
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
 
       - name: Publish release asset
