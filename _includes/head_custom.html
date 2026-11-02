@@ -8,7 +8,8 @@
 
 <link rel="icon" href="{{ '/favicon.ico' | relative_url }}" sizes="32x32">
 <link rel="icon" href="{{ '/assets/favicon.svg' | relative_url }}" type="image/svg+xml">
-<link rel="apple-touch-icon" href="{{ '/assets/favicon.svg' | relative_url }}">
+{# iOS 不支持 SVG 作为 apple-touch-icon，必须用 PNG #}
+<link rel="apple-touch-icon" href="{{ '/assets/apple-touch-icon.png' | relative_url }}">
 
 {% if page.collection == "posts" or page.layout == "post" %}
 <meta property="og:type" content="article">
