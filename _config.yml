@@ -1,11 +1,9 @@
 # Site settings
 title: Coding Hunter
-tagline: 编程 · 架构 · DDD · 微服务
+tagline: AI · 编程语言 · DDD · 微服务
 email: HTNecro@gmail.com
 author: codinghunter
-description: >-
-  Coding Hunter 是 codinghunter 的个人博客，记录编程语言、编程框架、
-  DDD（领域驱动设计）与微服务架构的实践与思考。
+description: "Coding Hunter 是 codinghunter 的个人博客，记录 AI、编程语言、DDD（领域驱动设计）与微服务的实践与思考。"
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://codinghunter.com" # 必须填写，sitemap / feed / 绝对链接都依赖它
 lang: zh-CN
