@@ -1,3 +1,6 @@
-<link rel="dns-prefetch" href="https://fonts.gstatic.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css?family=Bitter:400,400i,700" rel="stylesheet">
+{%- comment -%}
+  字体已改为自托管（assets/fonts/，@font-face 定义在 assets/main.scss），
+  不再从 fonts.googleapis.com 加载，避免国内访问阻塞首屏。
+  这里只保留对正文字体的预加载。
+{%- endcomment -%}
+<link rel="preload" href="{{ '/assets/fonts/bitter-var-latin.woff2' | relative_url }}" as="font" type="font/woff2" crossorigin>

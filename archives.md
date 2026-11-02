@@ -1,5 +1,5 @@
 ---
 layout: archive
-title: "Blog Archive"
+title: "归档"
 permalink: /archives/
 ---

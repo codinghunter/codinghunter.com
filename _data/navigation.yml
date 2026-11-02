@@ -1,7 +1,7 @@
 # If you want to link only specific pages in your header, add the path to the
 # pages in order as they should show up.
 main:
-  - title: "Archives"
+  - title: "归档"
     url: /archives/
-  - title: "About"
+  - title: "关于"
     url: /about/

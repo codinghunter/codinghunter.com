@@ -1,35 +1,22 @@
-# Welcome to Jekyll!
-#
-# This config file is meant for settings that affect your whole blog, values
-# which you are expected to set up once and rarely edit after that. If you find
-# yourself editing this file very often, consider using Jekyll's data files
-# feature for the data you need to update frequently.
-#
-# For technical reasons, this file is *NOT* reloaded automatically when you use
-# 'bundle exec jekyll serve'. If you change this file, please restart the server process.
-
 # Site settings
-# These are used to personalize your new site. If you look in the HTML files,
-# you will see them accessed via {{ site.title }}, {{ site.email }}, and so on.
-# You can create any custom variable you would like, and they will be accessible
-# in the templates via {{ site.myvariable }}.
 title: Coding Hunter
+tagline: 编程 · 架构 · DDD · 微服务
 email: HTNecro@gmail.com
 author: codinghunter
-description: >- # this means to ignore newlines until "baseurl:"
-  Write an awesome description for your new site here. You can edit this
-  line in _config.yml. It will appear in your document head meta (for
-  Google search results) and in your feed.xml site description.
+description: >-
+  Coding Hunter 是 codinghunter 的个人博客，记录编程语言、编程框架、
+  DDD（领域驱动设计）与微服务架构的实践与思考。
 baseurl: "" # the subpath of your site, e.g. /blog
-url: "" # the base hostname & protocol for your site, e.g. http://example.com
-copyright_year: 2021
-github_username:  codinghunter
+url: "https://codinghunter.com" # 必须填写，sitemap / feed / 绝对链接都依赖它
+lang: zh-CN
+github_username: codinghunter
 
 # Build settings
 markdown: kramdown
 theme: jekyll-whiteglass
 plugins:
   - jekyll-archives
+  - jekyll-feed
   - jekyll-paginate
   - jekyll-sitemap
 
@@ -46,16 +33,13 @@ jekyll-archives:
     category: /categories/:name/
     tag: /tags/:name/
 
-comments: true
+# 评论系统已移除（Disqus 在国内不可用且免费版带广告）。
+# 如需重新启用，推荐用 giscus（基于 GitHub Discussions）：
+# 1) 在 _includes/custom_comments_provider.html 放入 giscus 脚本
+# 2) 在 _layouts/post.html 里恢复 comments 区块，并把下面这行改回 true
+comments: false
 
-# Exclude from processing.
-# The following items will not be processed, by default. Create a custom list
-# to override the default setting.
-# exclude:
-#   - Gemfile
-#   - Gemfile.lock
-#   - node_modules
-#   - vendor/bundle/
-#   - vendor/cache/
-#   - vendor/gems/
-#   - vendor/ruby/
+# 不要发布到站点里的文件（Gemfile / vendor 等已由 Jekyll 默认排除）
+exclude:
+  - README.md
+  - LICENSE
